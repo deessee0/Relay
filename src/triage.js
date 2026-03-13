@@ -8,7 +8,7 @@ function scoreIncident(notes) {
     high += 3;
   }
 
-  if (/(risk|equipment failure|critical|dispatch immediately)/.test(text)) {
+  if (/(risk|equipment failure|critical|dispatch immediately|evacuate|safety)/.test(text)) {
     high += 2;
   }
 
@@ -16,7 +16,7 @@ function scoreIncident(notes) {
     medium += 2;
   }
 
-  if (/(electrical cabinet|nearby equipment)/.test(text)) {
+  if (/(electrical cabinet|nearby equipment|limited visibility|access constrained)/.test(text)) {
     medium += 1;
   }
 
@@ -76,8 +76,21 @@ function suggestNextActions(incident, severity) {
   ];
 }
 
-function buildHandoff(incident, summary, severity, rationale, actions) {
+function buildHandoff(incident, summary, severity, rationale, actions, role = 'supervisor') {
+  const roleIntro = {
+    supervisor: 'Supervisor handoff',
+    field: 'Field operator handoff',
+    maintenance: 'Maintenance handoff'
+  }[role] || 'Team handoff';
+
+  const tailoredActions = role === 'field'
+    ? actions.filter((action) => !/maintenance lead/i.test(action))
+    : role === 'maintenance'
+      ? actions.filter((action) => !/Prepare a concise handoff/i.test(action))
+      : actions;
+
   return [
+    `${roleIntro}`,
     `Incident: ${incident.title}`,
     `Location: ${incident.location}`,
     `Reporter: ${incident.reporter}`,
@@ -85,7 +98,7 @@ function buildHandoff(incident, summary, severity, rationale, actions) {
     `Why: ${rationale}`,
     `Summary: ${summary}`,
     'Immediate next actions:',
-    ...actions.map((a) => `- ${a}`)
+    ...tailoredActions.map((a) => `- ${a}`)
   ].join('\n');
 }
 

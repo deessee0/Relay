@@ -1,33 +1,70 @@
 # Relay
 
-Relay is a local-first AI copilot for incident reporting, triage, and team handoffs in unreliable-connectivity environments.
+Relay is a local-first incident copilot for teams that need to capture, triage, and hand off operational issues under pressure, even when connectivity is unreliable.
 
-## What it does
+## Product promise
 
-Relay helps teams capture incidents, keep a shared operational timeline, generate concise summaries, assess severity, and suggest next actions even when connectivity is unreliable.
+Relay helps frontline teams turn fragmented updates into a shared operational picture:
 
-It is designed for field operations and coordination workflows where information needs to stay usable under pressure, not only when the network behaves.
+- create incidents quickly
+- capture structured timeline notes
+- generate concise AI summaries
+- recommend incident severity with rationale
+- suggest next actions
+- prepare role-specific handoff drafts
+- preserve usability when the network is unstable
 
-## Core experience
+## Current demo
 
-- Create and update incident reports
-- Capture structured notes and timeline events
-- Generate AI-assisted summaries
-- Estimate severity with rationale
-- Suggest next actions and handoff text
-- Support resilient, local-first workflows
+The current prototype is a runnable local CLI that simulates the core product loop:
 
-## Planned stack
+1. create an incident locally
+2. add timeline notes over time
+3. assess severity from the latest facts
+4. generate a summary and next-step guidance
+5. produce a handoff draft for supervisors, field operators, or maintenance
+6. show a simulated sync state for offline-first workflows
 
-- TypeScript
-- Next.js
-- Node.js
-- Amazon Nova
-- PostgreSQL
-- PowerSync
-- Sync Streams
-- SQLite / local-first data model
+Data is persisted to `data/incidents.json`, so the demo behaves more like a product and less like a static mock.
 
-## Status
+## Run it
 
-Early scaffold in progress.
+```bash
+npm run demo
+```
+
+Useful commands:
+
+```bash
+node src/index.js list
+node src/index.js view inc-001
+node src/index.js view inc-001 maintenance
+node src/index.js create "Pump pressure drop" "West Intake" "Operator S. Kim" intermittent
+node src/index.js note inc-pump-pressure-drop-3 observation "Pressure remains unstable after reset."
+node src/index.js status inc-pump-pressure-drop-3 monitoring
+```
+
+## Why it matters
+
+Operational teams do not fail because they lack data alone. They fail when critical context arrives late, fragments across people, or becomes unusable offline. Relay is designed to reduce that coordination drag.
+
+## Near-term scope
+
+In scope:
+
+- incident model
+- timeline capture
+- AI summary
+- severity recommendation
+- next-step recommendation
+- role-specific handoff
+- simulated sync state
+- persistent local demo data
+
+Out of scope for now:
+
+- production auth
+- image understanding
+- voice features
+- complex workflow automation
+- large-scale backend polish

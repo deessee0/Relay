@@ -4,8 +4,9 @@
   "private": true,
   "description": "Local-first AI copilot for incident reporting and triage",
   "scripts": {
-    "dev": "node src/index.js",
-    "start": "node src/index.js",
-    "demo": "node src/index.js"
+    "dev": "node src/index.js demo",
+    "start": "node src/index.js demo",
+    "demo": "node src/index.js demo",
+    "list": "node src/index.js list"
   }
 }
