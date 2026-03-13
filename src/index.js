@@ -16,6 +16,7 @@ const {
   DEFAULT_REGION
 } = require('./analyze');
 const { buildSyncLog } = require('./sync');
+const { analyzePortfolio, getPortfolioRuntimeLabel, computeAttentionScore } = require('./command-center');
 
 function printHeader() {
   console.log('Relay — local-first incident copilot');
@@ -89,12 +90,14 @@ function printBoard() {
   printHeader();
   console.log('Incident command board:\n');
 
-  for (const incident of listIncidents()) {
+  const incidents = [...listIncidents()].sort((a, b) => computeAttentionScore(b) - computeAttentionScore(a));
+
+  for (const incident of incidents) {
     const latest = getLatestAnalysis(incident);
     const analysis = latest?.analysis;
     console.log(`${incident.id} | ${incident.title}`);
     console.log(`  status=${incident.status} | location=${incident.location} | connectivity=${incident.connectivity}`);
-    console.log(`  severity=${analysis?.severity || incident.severity || 'pending'} | confidence=${analysis?.confidence || 'n/a'}`);
+    console.log(`  severity=${analysis?.severity || incident.severity || 'pending'} | confidence=${analysis?.confidence || 'n/a'} | attention=${computeAttentionScore(incident)}`);
     console.log(`  next checkpoint=${analysis?.nextCheckpoint || 'Run refresh to generate a command update.'}`);
     console.log(`  blocker=${analysis?.blockers?.[0] || 'none'}`);
     console.log('');
@@ -154,10 +157,49 @@ async function refreshIncidentAnalysis(incidentId, role = 'supervisor') {
   console.log('\n-----------------------------------\n');
 }
 
+function printPortfolioAnalysis(result) {
+  const analysis = result.analysis || {};
+
+  console.log('\nPortfolio summary:');
+  console.log(analysis.portfolioSummary || 'n/a');
+
+  console.log('\nCommand posture:');
+  console.log(analysis.commandPosture || 'n/a');
+
+  console.log('\nPriority order:');
+  for (const item of analysis.priorityOrder || []) {
+    console.log(`- #${item.rank} ${item.incidentId}: ${item.whyNow}`);
+    console.log(`  commander action: ${item.commanderAction}`);
+  }
+
+  console.log('\nCross-incident risks:');
+  printList(analysis.crossIncidentRisks, 'No cross-incident risk identified.');
+
+  console.log('\nResource tensions:');
+  printList(analysis.resourceTensions, 'No resource tension identified.');
+
+  console.log('\nNext command brief:');
+  console.log(analysis.nextCommandBrief || 'n/a');
+}
+
+async function printCommandCenter() {
+  const incidents = listIncidents();
+  const result = await analyzePortfolio(incidents);
+
+  printHeader();
+  console.log('Relay Command Center');
+  console.log('--------------------');
+  console.log(`AI runtime: ${getPortfolioRuntimeLabel(result)}`);
+  console.log(`Active incidents: ${incidents.length}`);
+  printPortfolioAnalysis(result);
+  console.log('\n-----------------------------------\n');
+}
+
 function printUsage() {
   console.log('Usage:');
   console.log('  node src/index.js list');
   console.log('  node src/index.js board');
+  console.log('  node src/index.js command-center');
   console.log('  node src/index.js view <incident-id> [role]');
   console.log('  node src/index.js analyze <incident-id>');
   console.log('  node src/index.js refresh <incident-id> [role]');
@@ -192,6 +234,11 @@ async function main() {
 
   if (command === 'board') {
     printBoard();
+    return;
+  }
+
+  if (command === 'command-center') {
+    await printCommandCenter();
     return;
   }
 
@@ -260,6 +307,7 @@ async function main() {
   if (command === 'demo') {
     printHeader();
     printBoard();
+    await printCommandCenter();
     for (const incident of listIncidents()) {
       await printIncidentView(incident);
     }

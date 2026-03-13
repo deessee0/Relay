@@ -14,6 +14,7 @@ Relay helps frontline teams turn fragmented updates into a shared operational pi
 - suggest next actions and the next command checkpoint
 - produce role-specific handoff drafts
 - preserve usability when the network is unstable
+- rank command attention across multiple active incidents
 
 ## Why this is strong on Amazon Nova
 
@@ -22,8 +23,9 @@ Relay is designed around a practical agentic loop rather than a chatbot gimmick:
 1. collect structured field context locally
 2. send the current incident state to Amazon Nova on AWS for reasoning
 3. return a command package with severity, confidence, impact framing, blockers, escalation triggers, next actions, and role-specific handoffs
-4. persist the analysis so teams can track how incident understanding changes over time
-5. keep the workflow usable even when the network is unstable by falling back to local persistence and local heuristics
+4. synthesize a portfolio-level command view that ranks where a duty commander should focus next across active incidents
+5. persist the analysis so teams can track how incident understanding changes over time
+6. keep the workflow usable even when the network is unstable by falling back to local persistence and local heuristics
 
 That gives the demo a credible real-world story: Nova is doing the high-value operational reasoning, while Relay handles capture, continuity, and execution discipline.
 
@@ -37,7 +39,8 @@ The current prototype is a runnable local CLI that simulates the core product lo
 4. fall back to local heuristic triage when Nova is unavailable so the demo is still runnable offline
 5. generate a stored command package with summary, severity, confidence, impact, blockers, missing information, next-step guidance, next checkpoint, command brief, and role-specific handoff
 6. show an incident command board so multiple incidents feel like a real operating surface
-7. show a simulated sync state for offline-first workflows
+7. generate a command-center portfolio ranking that surfaces cross-incident risk and where leadership attention goes next
+8. show a simulated sync state for offline-first workflows
 
 Data is persisted to `data/incidents.json`, so the demo behaves more like a product and less like a static mock.
 
@@ -56,6 +59,7 @@ node src/index.js board
 node src/index.js view inc-001
 node src/index.js view inc-001 maintenance
 node src/index.js refresh inc-001
+node src/index.js command-center
 node src/index.js analyze inc-001
 node src/index.js create "Pump pressure drop" "West Intake" "Operator S. Kim" intermittent
 node src/index.js note inc-pump-pressure-drop-3 observation "Pressure remains unstable after reset."
@@ -93,6 +97,8 @@ For each incident, Relay generates:
 - next command checkpoint
 - command brief for leadership updates
 - role-specific handoff drafts for supervisor, field, and maintenance audiences
+- portfolio-level command ranking across multiple incidents
+- cross-incident risk and resource-tension visibility
 - sync-state visibility for unreliable connectivity scenarios
 - stored analysis history for longitudinal command updates
 

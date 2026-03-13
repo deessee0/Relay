@@ -63,15 +63,16 @@ function buildPrompt(incident) {
   ].join('\n');
 }
 
-async function analyzeWithNova(incident) {
+async function analyzeWithNova(input) {
   const client = await getBedrockClient();
   const { ConverseCommand } = require('@aws-sdk/client-bedrock-runtime');
+  const prompt = typeof input?.prompt === 'string' ? input.prompt : buildPrompt(input);
   const command = new ConverseCommand({
     modelId: DEFAULT_MODEL_ID,
     messages: [
       {
         role: 'user',
-        content: [{ text: buildPrompt(incident) }]
+        content: [{ text: prompt }]
       }
     ],
     inferenceConfig: {

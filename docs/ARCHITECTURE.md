@@ -26,6 +26,7 @@ Relay helps teams turn fragmented incident updates into structured operational c
   - command brief generation
   - role-specific handoffs
 - Persisted analysis snapshots so the incident command picture evolves over time instead of being stateless text generation
+- Portfolio-level command-center reasoning that ranks incidents, exposes cross-incident risks, and recommends the next commander move
 - Fallback heuristic layer so the demo remains usable without cloud access
 - Sync-state simulation that reinforces the offline-first product value
 
@@ -39,6 +40,7 @@ Amazon Nova is responsible for the high-value decision-support output:
 - identifying what must happen next versus what is still unknown
 - translating the same incident into different handoff formats
 - preserving uncertainty instead of overclaiming
+- prioritizing command attention across competing incidents instead of analyzing each case in isolation
 
 This improves the hackathon score in the most important category, Technical Implementation, because the AI layer is central to the workflow and product outcome.
 
@@ -49,7 +51,8 @@ This improves the hackathon score in the most important category, Technical Impl
 4. Nova returns a command package with summary, severity, confidence, blockers, information needs, impact framing, next actions, next checkpoint, command brief, and handoff drafts.
 5. Relay stores the incident and the generated analysis locally so the operating picture survives connectivity problems and can be refreshed over time.
 6. The user can reopen the same incident for different audiences without rebuilding context.
-7. The user can scan the command board across incidents to decide where attention is needed next.
+7. Relay synthesizes the active portfolio into a command-center view so a duty commander can prioritize attention across incidents.
+8. The user can scan the command board across incidents to decide where attention is needed next.
 
 ## Submission positioning
 ### Primary
