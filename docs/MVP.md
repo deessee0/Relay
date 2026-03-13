@@ -9,6 +9,7 @@
 - Next-step recommendation
 - Role-specific handoff view
 - Demo script and architecture writeup
+- Evaluation harness for reproducible scenario scoring
 
 ## Nice-to-have
 - Browser-based interface on top of the same product flow

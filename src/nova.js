@@ -1,3 +1,5 @@
+const { normalizeAnalysis, validateAnalysisShape } = require('./schema');
+
 const DEFAULT_REGION = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || 'us-east-1';
 const DEFAULT_MODEL_ID = process.env.RELAY_NOVA_MODEL_ID || 'us.amazon.nova-lite-v1:0';
 
@@ -93,12 +95,15 @@ async function analyzeWithNova(input) {
     throw new Error(`Amazon Nova returned non-JSON output: ${text}`);
   }
 
+  const validation = validateAnalysisShape(parsed);
+
   return {
     provider: 'amazon-nova',
     modelId: DEFAULT_MODEL_ID,
     region: DEFAULT_REGION,
     rawText: text,
-    analysis: parsed
+    validation,
+    analysis: normalizeAnalysis(parsed)
   };
 }
 

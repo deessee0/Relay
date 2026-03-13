@@ -27,6 +27,8 @@ Relay helps teams turn fragmented incident updates into structured operational c
   - role-specific handoffs
 - Persisted analysis snapshots so the incident command picture evolves over time instead of being stateless text generation
 - Portfolio-level command-center reasoning that ranks incidents, exposes cross-incident risks, and recommends the next commander move
+- Strict output normalization so Nova responses stay usable even when model formatting varies
+- Built-in evaluation harness with scenario scoring so reasoning quality is measurable, not just anecdotal
 - Fallback heuristic layer so the demo remains usable without cloud access
 - Sync-state simulation that reinforces the offline-first product value
 

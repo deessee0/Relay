@@ -27,7 +27,9 @@ Show that Relay turns raw operational updates into a clear, actionable workflow 
 10. Create a new incident live.
 11. Add a follow-up note.
 12. Run `node src/index.js refresh <new-incident-id>` to show that Relay stores a fresh command package and can update the incident picture over time.
-13. Return to `node src/index.js command-center` and then `node src/index.js board` to show the refreshed command surface.
+13. Run `node src/index.js eval`.
+14. Show that Relay includes a scenario-based evaluation harness with measurable scoring, which makes the Nova integration look like engineered product infrastructure rather than a prompt demo.
+15. Return to `node src/index.js command-center` and then `node src/index.js board` to show the refreshed command surface.
 
 ## What judges should feel
 - This solves a real operational coordination problem.

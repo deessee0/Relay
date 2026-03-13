@@ -1,4 +1,5 @@
 const { analyzeWithNova, DEFAULT_MODEL_ID, DEFAULT_REGION } = require('./nova');
+const { normalizeAnalysis } = require('./schema');
 
 function classifySeverity(notes) {
   const text = notes.map((n) => n.text.toLowerCase()).join(' ');
@@ -7,6 +8,10 @@ function classifySeverity(notes) {
   let medium = 0;
 
   if (/(shutdown|auto-recovered|overheat|overheating|abnormal|repeat alarms|load remains elevated)/.test(text)) {
+    high += 3;
+  }
+
+  if (/(near-miss|near miss|pedestrian|injury|unsafe|blocked sightline|visibility blocked|immediate control actions)/.test(text)) {
     high += 3;
   }
 
@@ -126,7 +131,7 @@ function buildFallbackAnalysis(incident) {
     provider: 'local-fallback',
     modelId: 'heuristic-triage-v2',
     region: 'local',
-    analysis: {
+    analysis: normalizeAnalysis({
       summary,
       severity: triage.severity,
       severityRationale: triage.rationale,
@@ -153,7 +158,7 @@ function buildFallbackAnalysis(incident) {
           ? 'Relay preserves local incident context despite unreliable connectivity.'
           : 'Incident data is available across connected devices.'
       }
-    }
+    })
   };
 }
 

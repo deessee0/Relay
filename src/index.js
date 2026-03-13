@@ -17,6 +17,7 @@ const {
 } = require('./analyze');
 const { buildSyncLog } = require('./sync');
 const { analyzePortfolio, getPortfolioRuntimeLabel, computeAttentionScore } = require('./command-center');
+const { runEvaluation } = require('./eval');
 
 function printHeader() {
   console.log('Relay — local-first incident copilot');
@@ -195,6 +196,22 @@ async function printCommandCenter() {
   console.log('\n-----------------------------------\n');
 }
 
+function printEvaluation(report) {
+  printHeader();
+  console.log('Relay evaluation harness');
+  console.log('------------------------');
+  console.log(`Provider mode: ${report.provider}`);
+  console.log(`Scenarios: ${report.scenarioCount}`);
+  console.log(`Average score: ${report.averageScore}/100\n`);
+
+  for (const item of report.results) {
+    console.log(`${item.scenarioId} | score=${item.score}/100 | severity=${item.severity} | expected=${item.expectedSeverity}`);
+    console.log(`  keywords=${item.checks.keywordCoverage} | uncertainty=${item.checks.uncertaintyHandled ? 'ok' : 'missed'} | nextActions=${item.checks.actionCountGood ? 'ok' : 'weak'}`);
+    console.log(`  ${item.summary}`);
+    console.log('');
+  }
+}
+
 function printUsage() {
   console.log('Usage:');
   console.log('  node src/index.js list');
@@ -206,6 +223,7 @@ function printUsage() {
   console.log('  node src/index.js create <title> <location> <reporter> [connectivity]');
   console.log('  node src/index.js note <incident-id> <type> <text>');
   console.log('  node src/index.js status <incident-id> <status>');
+  console.log('  node src/index.js eval');
   console.log('  node src/index.js demo');
   console.log('');
   console.log(`Amazon Nova defaults: model=${DEFAULT_MODEL_ID} region=${DEFAULT_REGION}`);
@@ -301,6 +319,12 @@ async function main() {
     const [incidentId, status] = args;
     const incident = updateStatus(incidentId, status);
     console.log(`Updated ${incident.id} status to ${incident.status}.`);
+    return;
+  }
+
+  if (command === 'eval') {
+    const report = await runEvaluation();
+    printEvaluation(report);
     return;
   }
 

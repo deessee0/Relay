@@ -27,7 +27,9 @@ Relay is designed around a practical agentic loop rather than a chatbot gimmick:
 5. persist the analysis so teams can track how incident understanding changes over time
 6. keep the workflow usable even when the network is unstable by falling back to local persistence and local heuristics
 
-That gives the demo a credible real-world story: Nova is doing the high-value operational reasoning, while Relay handles capture, continuity, and execution discipline.
+That gives the demo a credible real-world story: Nova is doing the high-value operational reasoning, while Relay handles capture, continuity, execution discipline, and evaluation rigor.
+
+Relay also includes a built-in evaluation harness (`npm run eval`) with realistic incident scenarios so judges can see that the Nova-powered reasoning layer is not just present — it is testable, structured, and measurable.
 
 ## Current demo
 
@@ -40,7 +42,8 @@ The current prototype is a runnable local CLI that simulates the core product lo
 5. generate a stored command package with summary, severity, confidence, impact, blockers, missing information, next-step guidance, next checkpoint, command brief, and role-specific handoff
 6. show an incident command board so multiple incidents feel like a real operating surface
 7. generate a command-center portfolio ranking that surfaces cross-incident risk and where leadership attention goes next
-8. show a simulated sync state for offline-first workflows
+8. run a built-in evaluation harness to show that the triage output is structured, measurable, and benchmarkable across realistic scenarios
+9. show a simulated sync state for offline-first workflows
 
 Data is persisted to `data/incidents.json`, so the demo behaves more like a product and less like a static mock.
 
@@ -61,6 +64,7 @@ node src/index.js view inc-001 maintenance
 node src/index.js refresh inc-001
 node src/index.js command-center
 node src/index.js analyze inc-001
+node src/index.js eval
 node src/index.js create "Pump pressure drop" "West Intake" "Operator S. Kim" intermittent
 node src/index.js note inc-pump-pressure-drop-3 observation "Pressure remains unstable after reset."
 node src/index.js status inc-pump-pressure-drop-3 monitoring
@@ -101,6 +105,7 @@ For each incident, Relay generates:
 - cross-incident risk and resource-tension visibility
 - sync-state visibility for unreliable connectivity scenarios
 - stored analysis history for longitudinal command updates
+- evaluation scenarios and a scoring harness for measurable triage quality
 
 ## Why it matters
 

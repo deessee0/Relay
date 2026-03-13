@@ -1,0 +1,57 @@
+[
+  {
+    "id": "scenario-generator-overheat",
+    "title": "Generator overheating at remote site",
+    "location": "North Ridge Substation",
+    "reporter": "Field Operator A. Kovacs",
+    "status": "open",
+    "connectivity": "intermittent",
+    "notes": [
+      { "at": "2026-03-13T09:12:00Z", "type": "observation", "text": "Temperature alarms triggered twice in the last 20 minutes." },
+      { "at": "2026-03-13T09:18:00Z", "type": "observation", "text": "Generator shut down for 90 seconds, then auto-recovered." },
+      { "at": "2026-03-13T09:24:00Z", "type": "risk", "text": "Site cooling fan sounds abnormal and load remains elevated." },
+      { "at": "2026-03-13T09:31:00Z", "type": "coordination", "text": "Maintenance lead requested triage summary before dispatch." }
+    ],
+    "expectations": {
+      "severity": "high",
+      "keywords": ["dispatch", "load", "shutdown", "checkpoint"],
+      "mustMentionUncertainty": false
+    }
+  },
+  {
+    "id": "scenario-water-ingress",
+    "title": "Water ingress detected in storage room",
+    "location": "South Depot B",
+    "reporter": "Technician N. Di Salvia",
+    "status": "monitoring",
+    "connectivity": "offline-first",
+    "notes": [
+      { "at": "2026-03-13T10:05:00Z", "type": "observation", "text": "Moisture sensor triggered near electrical cabinet wall." },
+      { "at": "2026-03-13T10:11:00Z", "type": "observation", "text": "No active leak visible, but floor edge is wet over ~1.5 meters." },
+      { "at": "2026-03-13T10:19:00Z", "type": "coordination", "text": "Requested inspection of roof seal and temporary isolation of nearby equipment." }
+    ],
+    "expectations": {
+      "severity": "medium",
+      "keywords": ["inspection", "isolation", "containment", "connectivity"],
+      "mustMentionUncertainty": true
+    }
+  },
+  {
+    "id": "scenario-forklift-near-miss",
+    "title": "Forklift near-miss in loading bay",
+    "location": "Warehouse 4",
+    "reporter": "Shift Lead J. Marin",
+    "status": "open",
+    "connectivity": "online",
+    "notes": [
+      { "at": "2026-03-13T11:02:00Z", "type": "safety", "text": "Forklift braked hard to avoid a pedestrian crossing behind a pallet stack." },
+      { "at": "2026-03-13T11:05:00Z", "type": "observation", "text": "No injury reported, but sightline is partially blocked by overflow inventory." },
+      { "at": "2026-03-13T11:09:00Z", "type": "coordination", "text": "Supervisor asked for immediate control actions before the next truck arrives." }
+    ],
+    "expectations": {
+      "severity": "high",
+      "keywords": ["safety", "control", "pedestrian", "immediate"],
+      "mustMentionUncertainty": false
+    }
+  }
+]
