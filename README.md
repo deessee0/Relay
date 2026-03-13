@@ -78,7 +78,7 @@ node src/index.js status inc-pump-pressure-drop-3 monitoring
 
 Relay defaults to Amazon Nova automatically when the Bedrock runtime is available.
 
-`node src/index.js nova-check` now writes a local proof artifact to `data/nova-proof.json`, and Relay surfaces the latest successful check in the board and command center views so judges can see that live Nova connectivity was verified recently.
+`node src/index.js nova-check` now writes a local proof artifact to `data/nova-proof.json`, and Relay surfaces the latest successful check in the board and command center views with a freshness indicator so judges can see that live Nova connectivity was verified recently rather than at some unknown earlier time.
 
 Example environment:
 

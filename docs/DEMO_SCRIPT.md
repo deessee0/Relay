@@ -7,7 +7,7 @@ Show that Relay turns raw operational updates into a clear, actionable workflow 
 1. If AWS credentials are configured, start with `node src/index.js nova-check`.
 2. Use that quick proof to say clearly that Amazon Nova is reachable live before the main walkthrough begins.
 3. Run `node src/index.js board`.
-4. Call out the new `Nova proof:` line first so judges can see the last successful live verification is persisted inside the product, not just flashed once in the terminal.
+4. Call out the new `Nova proof:` line first so judges can see the last successful live verification is persisted inside the product, not just flashed once in the terminal, and that the proof is still fresh.
 5. Explain that Relay is not a chat demo: it is an incident command surface showing severity, confidence, blockers, the next checkpoint, and ranked attention across active incidents.
 6. Run `node src/index.js command-center`.
 7. Call out the AI runtime line first. If Bedrock is configured, point out that the portfolio reasoning is coming from Amazon Nova. If not, note that the demo can still run locally because Relay degrades gracefully.
@@ -22,6 +22,7 @@ Show that Relay turns raw operational updates into a clear, actionable workflow 
 11. Highlight the incident AI outputs in this order:
    - summary
    - recommended severity, confidence, and evidence status
+   - stored command-package source so judges can see whether the current incident package came from Amazon Nova or local fallback
    - commander intent
    - blockers and information needed next
    - operational impact

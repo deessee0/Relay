@@ -93,6 +93,18 @@ function printAnalysis(analysis, role = 'supervisor') {
   console.log(handoff);
 }
 
+function formatAnalysisSource(snapshot) {
+  if (!snapshot) {
+    return 'no stored command package';
+  }
+
+  if (snapshot.provider === 'amazon-nova') {
+    return `Amazon Nova (${snapshot.modelId}, ${snapshot.region}) at ${snapshot.generatedAt}`;
+  }
+
+  return `Local fallback (${snapshot.modelId}) at ${snapshot.generatedAt}`;
+}
+
 function printBoard() {
   printHeader();
   console.log('Incident command board:\n');
@@ -107,6 +119,7 @@ function printBoard() {
     console.log(`${incident.id} | ${incident.title}`);
     console.log(`  status=${incident.status} | location=${incident.location} | connectivity=${incident.connectivity}`);
     console.log(`  severity=${analysis?.severity || incident.severity || 'pending'} | confidence=${analysis?.confidence || 'n/a'} | evidence=${analysis?.evidenceStatus || 'n/a'} | attention=${computeAttentionScore(incident)}`);
+    console.log(`  source=${formatAnalysisSource(latest)}`);
     console.log(`  intent=${analysis?.commanderIntent || 'Run refresh to generate a command objective.'}`);
     console.log(`  next checkpoint=${analysis?.nextCheckpoint || 'Run refresh to generate a command update.'}`);
     console.log(`  blocker=${analysis?.blockers?.[0] || 'none'}`);
@@ -135,7 +148,7 @@ async function printIncidentView(incident, role = 'supervisor') {
   console.log(`Created: ${incident.createdAt}`);
   console.log(`Updated: ${incident.updatedAt}`);
   console.log(`AI runtime: ${getAiRuntimeLabel(result)}`);
-  console.log(`Stored analysis: ${latestSnapshot ? latestSnapshot.generatedAt : 'none yet — displaying live analysis'}`);
+  console.log(`Stored command package: ${formatAnalysisSource(latestSnapshot)}`);
 
   printTimeline(incident);
   printSyncLog(incident);

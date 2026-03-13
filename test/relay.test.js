@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 
 const { extractJsonBlock } = require('../src/nova');
 const { classifySeverity, buildFallbackAnalysis } = require('../src/analyze');
-const { formatNovaProof } = require('../src/proof');
+const { formatNovaProof, getProofFreshness } = require('../src/proof');
 
 test('extractJsonBlock pulls JSON out of fenced output', () => {
   const raw = [
@@ -14,6 +14,15 @@ test('extractJsonBlock pulls JSON out of fenced output', () => {
   ].join('\n');
 
   assert.equal(extractJsonBlock(raw), '{"summary":"ok","severity":"low"}');
+});
+
+test('extractJsonBlock pulls the balanced object out of wrapped text', () => {
+  const raw = 'Nova says: {"summary":"ok","severity":"low","note":"brace { inside string }"}\nThanks';
+
+  assert.equal(
+    extractJsonBlock(raw),
+    '{"summary":"ok","severity":"low","note":"brace { inside string }"}'
+  );
 });
 
 test('classifySeverity treats near-miss scenarios as high severity', () => {
@@ -53,15 +62,27 @@ test('fallback analysis includes command-ready fields for offline demo flow', ()
   assert.match(result.analysis.commandBrief, /Evidence status is mixed/i);
 });
 
-test('formatNovaProof gives a judge-friendly proof line', () => {
+test('formatNovaProof gives a judge-friendly proof line with freshness', () => {
+  const now = new Date('2026-03-13T18:00:00Z');
   const text = formatNovaProof({
     checkedAt: '2026-03-13T17:40:00Z',
     modelId: 'us.amazon.nova-lite-v1:0',
     region: 'us-east-1',
     validation: { ok: true }
-  });
+  }, now);
 
   assert.match(text, /2026-03-13T17:40:00Z/);
   assert.match(text, /us\.amazon\.nova-lite-v1:0/);
   assert.match(text, /schema pass/);
+  assert.match(text, /fresh 20m ago/);
+});
+
+test('getProofFreshness marks old proofs as stale', () => {
+  const freshness = getProofFreshness(
+    { checkedAt: '2026-03-10T18:00:00Z' },
+    new Date('2026-03-13T18:00:00Z')
+  );
+
+  assert.equal(freshness.fresh, false);
+  assert.match(freshness.label, /stale 3d ago/);
 });
