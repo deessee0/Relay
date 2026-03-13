@@ -82,7 +82,7 @@ function buildFallbackActions(severity) {
   ];
 }
 
-function buildFallbackHandoff(role, incident, summary, severity, rationale, nextActions) {
+function buildFallbackHandoff(role, incident, summary, severity, rationale, nextActions, evidenceStatus, commanderIntent) {
   const roleName = {
     supervisor: 'Supervisor handoff',
     field: 'Field operator handoff',
@@ -96,6 +96,8 @@ function buildFallbackHandoff(role, incident, summary, severity, rationale, next
     `Current status: ${incident.status}`,
     `Recommended severity: ${severity}`,
     `Why: ${rationale}`,
+    `Evidence status: ${evidenceStatus}`,
+    `Commander intent: ${commanderIntent}`,
     `Summary: ${summary}`,
     'Next actions:',
     ...nextActions.map((action) => `- ${action}`)
@@ -106,7 +108,18 @@ function buildFallbackAnalysis(incident) {
   const triage = classifySeverity(incident.notes);
   const summary = buildFallbackSummary(incident);
   const nextActions = buildFallbackActions(triage.severity);
+  const text = incident.notes.map((note) => note.text.toLowerCase()).join(' ');
   const confidence = triage.severity === 'high' ? 'high' : 'medium';
+  const evidenceStatus = incident.connectivity === 'offline-first'
+    ? 'mixed'
+    : /(no active leak visible|no injury reported|requested|sounds abnormal)/.test(text)
+      ? 'mixed'
+      : 'confirmed';
+  const commanderIntent = triage.severity === 'high'
+    ? 'Stabilize the asset quickly, verify whether the risk is still active, and keep escalation ownership explicit.'
+    : triage.severity === 'medium'
+      ? 'Contain the issue, verify whether impact is spreading, and preserve a clean command timeline.'
+      : 'Maintain visibility, confirm closure criteria, and avoid unnecessary escalation.';
   const escalationTriggers = triage.severity === 'high'
     ? [
         'Repeated alarms or another automatic shutdown',
@@ -127,15 +140,21 @@ function buildFallbackAnalysis(incident) {
     ? ['Unreliable connectivity may delay remote review or attachment upload']
     : ['No major coordination blocker identified from current notes'];
 
+  const uncertaintyLine = evidenceStatus === 'confirmed'
+    ? 'Evidence is currently consistent across the available notes.'
+    : 'Evidence is still mixed, so field verification and another checkpoint are needed before overcommitting.';
+
   return {
     provider: 'local-fallback',
     modelId: 'heuristic-triage-v2',
     region: 'local',
     analysis: normalizeAnalysis({
-      summary,
+      summary: `${summary} ${uncertaintyLine}`,
       severity: triage.severity,
       severityRationale: triage.rationale,
       confidence,
+      evidenceStatus,
+      commanderIntent,
       escalationTriggers,
       informationNeeds,
       blockers,
@@ -145,11 +164,11 @@ function buildFallbackAnalysis(incident) {
         : triage.severity === 'medium'
           ? 'Collect a verification update in the next operating window and confirm whether containment is holding.'
           : 'Review the incident again at the next routine checkpoint before closure.',
-      commandBrief: `Command brief: ${summary} Priority is ${triage.severity}. Immediate focus is keeping the timeline current and the next response owner explicit.`,
+      commandBrief: `Command brief: ${summary} Priority is ${triage.severity}. Evidence status is ${evidenceStatus}. Immediate focus is ${commanderIntent.toLowerCase()}`,
       handoff: {
-        supervisor: buildFallbackHandoff('supervisor', incident, summary, triage.severity, triage.rationale, nextActions),
-        field: buildFallbackHandoff('field', incident, summary, triage.severity, triage.rationale, nextActions),
-        maintenance: buildFallbackHandoff('maintenance', incident, summary, triage.severity, triage.rationale, nextActions)
+        supervisor: buildFallbackHandoff('supervisor', incident, summary, triage.severity, triage.rationale, nextActions, evidenceStatus, commanderIntent),
+        field: buildFallbackHandoff('field', incident, summary, triage.severity, triage.rationale, nextActions, evidenceStatus, commanderIntent),
+        maintenance: buildFallbackHandoff('maintenance', incident, summary, triage.severity, triage.rationale, nextActions, evidenceStatus, commanderIntent)
       },
       impact: {
         operations: triage.severity === 'high' ? 'Operational continuity is at risk if the issue repeats or escalates.' : 'Operational impact appears manageable but still requires coordination discipline.',
@@ -187,6 +206,14 @@ function summarizeChanges(previousSnapshot, nextSnapshot) {
 
   if (previous.confidence !== next.confidence) {
     changes.push(`Confidence changed from ${previous.confidence || 'unknown'} to ${next.confidence || 'unknown'}.`);
+  }
+
+  if (previous.evidenceStatus !== next.evidenceStatus) {
+    changes.push(`Evidence status changed from ${previous.evidenceStatus || 'unknown'} to ${next.evidenceStatus || 'unknown'}.`);
+  }
+
+  if (previous.commanderIntent !== next.commanderIntent) {
+    changes.push('Commander intent changed.');
   }
 
   if (previous.nextCheckpoint !== next.nextCheckpoint) {

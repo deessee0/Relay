@@ -64,6 +64,7 @@ function buildPortfolioPrompt(incidents) {
     'Requirements:',
     '- Ground everything in the provided incidents only.',
     '- Rank all incidents from highest to lowest command attention.',
+    '- Use severity, connectivity, evidence quality, blockers, and commander intent together when prioritizing.',
     '- Portfolio summary must be 3 sentences max.',
     '- commandPosture should reflect the whole portfolio, not one incident only.',
     '- crossIncidentRisks and resourceTensions should contain 1 to 3 concrete items when applicable.',
@@ -102,8 +103,8 @@ function buildFallbackPortfolio(incidents) {
   const priorityOrder = ranked.map((item, index) => ({
     incidentId: item.incident.id,
     rank: index + 1,
-    whyNow: `${item.incident.title} is ${item.latest.severity || item.incident.severity || 'pending'} severity with ${item.incident.connectivity} connectivity and ${item.latest.blockers?.[0] || 'no major blocker reported'}.`,
-    commanderAction: item.latest.nextActions?.[0] || 'Refresh the incident and confirm the next owner.'
+    whyNow: `${item.incident.title} is ${item.latest.severity || item.incident.severity || 'pending'} severity with ${item.incident.connectivity} connectivity, ${item.latest.evidenceStatus || 'mixed'} evidence, and ${item.latest.blockers?.[0] || 'no major blocker reported'}.`,
+    commanderAction: item.latest.commanderIntent || item.latest.nextActions?.[0] || 'Refresh the incident and confirm the next owner.'
   }));
 
   const crossIncidentRisks = [];
@@ -138,7 +139,7 @@ function buildFallbackPortfolio(incidents) {
       crossIncidentRisks: crossIncidentRisks.slice(0, 3),
       resourceTensions: resourceTensions.slice(0, 3),
       nextCommandBrief: top
-        ? `Command brief: portfolio posture is ${posture}. First attention goes to ${top.incident.title} (${top.incident.id}) because it combines ${top.latest.severity || top.incident.severity} severity with ${top.incident.connectivity} connectivity. Secondary incidents remain in view, but ownership and checkpoint discipline must stay explicit.`
+        ? `Command brief: portfolio posture is ${posture}. First attention goes to ${top.incident.title} (${top.incident.id}) because it combines ${top.latest.severity || top.incident.severity} severity, ${top.incident.connectivity} connectivity, and ${top.latest.evidenceStatus || 'mixed'} evidence quality. Immediate command intent is ${top.latest.commanderIntent || 'to refresh the incident and keep ownership explicit'}. Secondary incidents remain in view, but ownership and checkpoint discipline must stay explicit.`
         : 'Command brief: no active incidents require action.'
     }
   };

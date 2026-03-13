@@ -8,8 +8,9 @@ Relay helps teams turn fragmented incident updates into structured operational c
 - concise summaries
 - severity recommendations with rationale
 - confidence estimates grounded in evidence quality
+- explicit evidence status so command teams know whether the picture is confirmed, mixed, or still unverified
 - escalation triggers and missing-information requests
-- next-step suggestions and the next command checkpoint
+- next-step suggestions, commander intent, and the next command checkpoint
 - command briefs for leaders
 - clean handoff drafts for downstream teams
 

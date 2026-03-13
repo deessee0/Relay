@@ -3,6 +3,8 @@ const REQUIRED_ANALYSIS_FIELDS = [
   'severity',
   'severityRationale',
   'confidence',
+  'evidenceStatus',
+  'commanderIntent',
   'escalationTriggers',
   'informationNeeds',
   'blockers',
@@ -42,6 +44,8 @@ function normalizeAnalysis(raw) {
     severity: asEnum(raw?.severity, ['low', 'medium', 'high'], 'medium'),
     severityRationale: asString(raw?.severityRationale),
     confidence: asEnum(raw?.confidence, ['low', 'medium', 'high'], 'low'),
+    evidenceStatus: asEnum(raw?.evidenceStatus, ['confirmed', 'mixed', 'unverified'], 'mixed'),
+    commanderIntent: asString(raw?.commanderIntent, 'Refresh the incident and confirm the next owner.'),
     escalationTriggers: asStringArray(raw?.escalationTriggers, { max: 3 }),
     informationNeeds: asStringArray(raw?.informationNeeds, { max: 3 }),
     blockers: asStringArray(raw?.blockers, { max: 3 }),
@@ -75,6 +79,14 @@ function validateAnalysisShape(raw) {
 
   if (!['low', 'medium', 'high'].includes(raw?.confidence)) {
     problems.push('confidence must be low, medium, or high');
+  }
+
+  if (!['confirmed', 'mixed', 'unverified'].includes(raw?.evidenceStatus)) {
+    problems.push('evidenceStatus must be confirmed, mixed, or unverified');
+  }
+
+  if (typeof raw?.commanderIntent !== 'string' || !raw.commanderIntent.trim()) {
+    problems.push('commanderIntent must be a non-empty string');
   }
 
   if (!Array.isArray(raw?.nextActions) || raw.nextActions.length < 3) {

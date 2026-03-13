@@ -10,8 +10,8 @@ Relay helps frontline teams turn fragmented updates into a shared operational pi
 - capture structured timeline notes
 - generate concise AI summaries
 - recommend incident severity with rationale
-- surface confidence, blockers, escalation triggers, and missing information
-- suggest next actions and the next command checkpoint
+- surface confidence, evidence status, blockers, escalation triggers, and missing information
+- suggest next actions, explicit commander intent, and the next command checkpoint
 - produce role-specific handoff drafts
 - preserve usability when the network is unstable
 - rank command attention across multiple active incidents
@@ -22,7 +22,7 @@ Relay is designed around a practical agentic loop rather than a chatbot gimmick:
 
 1. collect structured field context locally
 2. send the current incident state to Amazon Nova on AWS for reasoning
-3. return a command package with severity, confidence, impact framing, blockers, escalation triggers, next actions, and role-specific handoffs
+3. return a command package with severity, confidence, evidence status, commander intent, impact framing, blockers, escalation triggers, next actions, and role-specific handoffs
 4. synthesize a portfolio-level command view that ranks where a duty commander should focus next across active incidents
 5. persist the analysis so teams can track how incident understanding changes over time
 6. keep the workflow usable even when the network is unstable by falling back to local persistence and local heuristics
@@ -39,7 +39,7 @@ The current prototype is a runnable local CLI that simulates the core product lo
 2. add timeline notes over time
 3. analyze the incident with Amazon Nova via Amazon Bedrock when AWS credentials are available
 4. fall back to local heuristic triage when Nova is unavailable so the demo is still runnable offline
-5. generate a stored command package with summary, severity, confidence, impact, blockers, missing information, next-step guidance, next checkpoint, command brief, and role-specific handoff
+5. generate a stored command package with summary, severity, confidence, evidence status, commander intent, impact, blockers, missing information, next-step guidance, next checkpoint, command brief, and role-specific handoff
 6. show an incident command board so multiple incidents feel like a real operating surface
 7. generate a command-center portfolio ranking that surfaces cross-incident risk and where leadership attention goes next
 8. run a built-in evaluation harness to show that the triage output is structured, measurable, and benchmarkable across realistic scenarios
@@ -93,7 +93,8 @@ For each incident, Relay generates:
 
 - AI summary
 - recommended severity and rationale
-- confidence signal
+- confidence signal and explicit evidence status
+- commander intent for the immediate operational objective
 - operational impact framing across operations, safety, and continuity
 - escalation triggers
 - missing information requests

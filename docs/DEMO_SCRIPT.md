@@ -18,7 +18,8 @@ Show that Relay turns raw operational updates into a clear, actionable workflow 
 7. Walk judges through the structured timeline and sync-state section.
 8. Highlight the incident AI outputs in this order:
    - summary
-   - recommended severity and confidence
+   - recommended severity, confidence, and evidence status
+   - commander intent
    - blockers and information needed next
    - operational impact
    - next actions and next checkpoint

@@ -22,21 +22,29 @@ function scoreScenario(result, scenario) {
   ].join(' ').toLowerCase();
 
   const keywordHits = (expected.keywords || []).filter((keyword) => haystack.includes(String(keyword).toLowerCase()));
-  const uncertaintyMentions = /(uncertain|uncertainty|incomplete|pending|unverified|not yet confirmed)/.test(haystack);
+  const uncertaintyMentions = /(uncertain|uncertainty|incomplete|pending|unverified|not yet confirmed|mixed evidence)/.test(haystack);
   const severityCorrect = analysis.severity === expected.severity;
   const actionCountGood = (analysis.nextActions || []).length >= 3;
+  const evidenceStatusGood = expected.mustMentionUncertainty
+    ? ['mixed', 'unverified'].includes(analysis.evidenceStatus)
+    : ['confirmed', 'mixed', 'unverified'].includes(analysis.evidenceStatus);
+  const commanderIntentGood = typeof analysis.commanderIntent === 'string' && analysis.commanderIntent.trim().length >= 20;
 
   const checks = {
     severityCorrect,
     actionCountGood,
+    evidenceStatusGood,
+    commanderIntentGood,
     keywordCoverage: `${keywordHits.length}/${(expected.keywords || []).length}`,
     uncertaintyHandled: expected.mustMentionUncertainty ? uncertaintyMentions : true
   };
 
   let score = 0;
-  if (severityCorrect) score += 50;
-  score += Math.round((keywordHits.length / Math.max((expected.keywords || []).length, 1)) * 30);
+  if (severityCorrect) score += 40;
+  score += Math.round((keywordHits.length / Math.max((expected.keywords || []).length, 1)) * 25);
   if (checks.uncertaintyHandled) score += 10;
+  if (checks.evidenceStatusGood) score += 10;
+  if (checks.commanderIntentGood) score += 5;
   if (actionCountGood) score += 10;
 
   return {
@@ -48,7 +56,9 @@ function scoreScenario(result, scenario) {
     expectedSeverity: expected.severity,
     checks,
     score,
-    summary: analysis.summary
+    summary: analysis.summary,
+    evidenceStatus: analysis.evidenceStatus,
+    commanderIntent: analysis.commanderIntent
   };
 }
 

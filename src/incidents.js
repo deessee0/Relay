@@ -1,4 +1,5 @@
 const { readIncidents, writeIncidents } = require('./store');
+const { normalizeAnalysis } = require('./schema');
 
 function nowIso() {
   return new Date().toISOString();
@@ -101,7 +102,16 @@ function updateStatus(id, status) {
 
 function getLatestAnalysis(incident) {
   const history = incident.analysisHistory || [];
-  return history[history.length - 1] || null;
+  const latest = history[history.length - 1] || null;
+
+  if (!latest) {
+    return null;
+  }
+
+  return {
+    ...latest,
+    analysis: normalizeAnalysis(latest.analysis || {})
+  };
 }
 
 function saveAnalysis(id, snapshot) {

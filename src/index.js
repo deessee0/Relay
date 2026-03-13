@@ -59,6 +59,10 @@ function printAnalysis(analysis, role = 'supervisor') {
   console.log(`- ${analysis.severity}`);
   console.log(`- rationale: ${analysis.severityRationale}`);
   console.log(`- confidence: ${analysis.confidence || 'n/a'}`);
+  console.log(`- evidence status: ${analysis.evidenceStatus || 'n/a'}`);
+
+  console.log('\nCommander intent:');
+  console.log(analysis.commanderIntent || 'n/a');
 
   console.log('\nOperational impact:');
   console.log(`- operations: ${analysis.impact?.operations || 'n/a'}`);
@@ -98,7 +102,8 @@ function printBoard() {
     const analysis = latest?.analysis;
     console.log(`${incident.id} | ${incident.title}`);
     console.log(`  status=${incident.status} | location=${incident.location} | connectivity=${incident.connectivity}`);
-    console.log(`  severity=${analysis?.severity || incident.severity || 'pending'} | confidence=${analysis?.confidence || 'n/a'} | attention=${computeAttentionScore(incident)}`);
+    console.log(`  severity=${analysis?.severity || incident.severity || 'pending'} | confidence=${analysis?.confidence || 'n/a'} | evidence=${analysis?.evidenceStatus || 'n/a'} | attention=${computeAttentionScore(incident)}`);
+    console.log(`  intent=${analysis?.commanderIntent || 'Run refresh to generate a command objective.'}`);
     console.log(`  next checkpoint=${analysis?.nextCheckpoint || 'Run refresh to generate a command update.'}`);
     console.log(`  blocker=${analysis?.blockers?.[0] || 'none'}`);
     console.log('');
@@ -206,7 +211,7 @@ function printEvaluation(report) {
 
   for (const item of report.results) {
     console.log(`${item.scenarioId} | score=${item.score}/100 | severity=${item.severity} | expected=${item.expectedSeverity}`);
-    console.log(`  keywords=${item.checks.keywordCoverage} | uncertainty=${item.checks.uncertaintyHandled ? 'ok' : 'missed'} | nextActions=${item.checks.actionCountGood ? 'ok' : 'weak'}`);
+    console.log(`  keywords=${item.checks.keywordCoverage} | uncertainty=${item.checks.uncertaintyHandled ? 'ok' : 'missed'} | evidence=${item.checks.evidenceStatusGood ? 'ok' : 'weak'} | intent=${item.checks.commanderIntentGood ? 'ok' : 'weak'} | nextActions=${item.checks.actionCountGood ? 'ok' : 'weak'}`);
     console.log(`  ${item.summary}`);
     console.log('');
   }

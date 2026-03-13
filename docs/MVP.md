@@ -6,6 +6,7 @@
 - Timeline/note model
 - AI summary output
 - Severity recommendation with rationale
+- Evidence status and commander intent
 - Next-step recommendation
 - Role-specific handoff view
 - Demo script and architecture writeup
