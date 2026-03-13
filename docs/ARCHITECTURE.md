@@ -7,7 +7,9 @@ Build the strongest possible Amazon Nova AI Hackathon submission around a practi
 Relay helps teams turn fragmented incident updates into structured operational context. The product is designed to reduce coordination friction by producing:
 - concise summaries
 - severity recommendations with rationale
-- next-step suggestions
+- confidence estimates grounded in evidence quality
+- escalation triggers and missing-information requests
+- next-step suggestions and the next command checkpoint
 - command briefs for leaders
 - clean handoff drafts for downstream teams
 
@@ -17,9 +19,13 @@ Relay helps teams turn fragmented incident updates into structured operational c
 - Amazon Nova reasoning layer via Amazon Bedrock for:
   - summary generation
   - severity assessment
+  - confidence estimation
   - operational impact framing
+  - blocker detection
+  - escalation trigger extraction
   - command brief generation
   - role-specific handoffs
+- Persisted analysis snapshots so the incident command picture evolves over time instead of being stateless text generation
 - Fallback heuristic layer so the demo remains usable without cloud access
 - Sync-state simulation that reinforces the offline-first product value
 
@@ -29,6 +35,8 @@ Relay is strongest when Nova is clearly the reasoning core, not just decorative 
 Amazon Nova is responsible for the high-value decision-support output:
 - interpreting fragmented incident updates
 - producing concise command-ready summaries
+- estimating severity and confidence from incomplete evidence
+- identifying what must happen next versus what is still unknown
 - translating the same incident into different handoff formats
 - preserving uncertainty instead of overclaiming
 
@@ -38,9 +46,10 @@ This improves the hackathon score in the most important category, Technical Impl
 1. User creates or opens an incident.
 2. User adds structured observations and coordination notes.
 3. Relay sends the current incident state to Amazon Nova.
-4. Nova returns a concise summary, severity recommendation, rationale, impact framing, next actions, command brief, and handoff drafts.
-5. Relay stores the underlying incident locally and keeps the workflow usable during connectivity degradation.
-6. The user can reopen the incident for different audiences without rebuilding context.
+4. Nova returns a command package with summary, severity, confidence, blockers, information needs, impact framing, next actions, next checkpoint, command brief, and handoff drafts.
+5. Relay stores the incident and the generated analysis locally so the operating picture survives connectivity problems and can be refreshed over time.
+6. The user can reopen the same incident for different audiences without rebuilding context.
+7. The user can scan the command board across incidents to decide where attention is needed next.
 
 ## Submission positioning
 ### Primary

@@ -53,7 +53,8 @@ function createIncident({ title, location, reporter, connectivity = 'offline-fir
         type: 'intake',
         text: `Incident created by ${reporter}.`
       }
-    ]
+    ],
+    analysisHistory: []
   };
 
   incidents.push(incident);
@@ -98,10 +99,34 @@ function updateStatus(id, status) {
   return incident;
 }
 
+function getLatestAnalysis(incident) {
+  const history = incident.analysisHistory || [];
+  return history[history.length - 1] || null;
+}
+
+function saveAnalysis(id, snapshot) {
+  const incidents = readIncidents();
+  const incident = incidents.find((item) => item.id === id);
+
+  if (!incident) {
+    throw new Error(`Incident not found: ${id}`);
+  }
+
+  incident.analysisHistory = incident.analysisHistory || [];
+  incident.analysisHistory.push(snapshot);
+  incident.updatedAt = snapshot.generatedAt || nowIso();
+  incident.severity = snapshot.analysis?.severity || incident.severity;
+
+  writeIncidents(incidents);
+  return incident;
+}
+
 module.exports = {
   listIncidents,
   getIncident,
   createIncident,
   addNote,
-  updateStatus
+  updateStatus,
+  getLatestAnalysis,
+  saveAnalysis
 };

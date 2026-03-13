@@ -3,11 +3,15 @@ const {
   getIncident,
   createIncident,
   addNote,
-  updateStatus
+  updateStatus,
+  getLatestAnalysis,
+  saveAnalysis
 } = require('./incidents');
 const {
   analyzeIncident,
   getAiRuntimeLabel,
+  createStoredSnapshot,
+  summarizeChanges,
   DEFAULT_MODEL_ID,
   DEFAULT_REGION
 } = require('./analyze');
@@ -32,10 +36,82 @@ function printSyncLog(incident) {
   }
 }
 
-async function printIncidentView(incident, role = 'supervisor') {
-  const result = await analyzeIncident(incident);
-  const analysis = result.analysis;
+function printList(items, emptyMessage = 'None.') {
+  if (!items || !items.length) {
+    console.log(`- ${emptyMessage}`);
+    return;
+  }
+
+  for (const item of items) {
+    console.log(`- ${item}`);
+  }
+}
+
+function printAnalysis(analysis, role = 'supervisor') {
   const handoff = analysis.handoff?.[role] || analysis.handoff?.supervisor || 'No handoff available.';
+
+  console.log('\nAI summary:');
+  console.log(analysis.summary);
+
+  console.log('\nRecommended severity:');
+  console.log(`- ${analysis.severity}`);
+  console.log(`- rationale: ${analysis.severityRationale}`);
+  console.log(`- confidence: ${analysis.confidence || 'n/a'}`);
+
+  console.log('\nOperational impact:');
+  console.log(`- operations: ${analysis.impact?.operations || 'n/a'}`);
+  console.log(`- safety: ${analysis.impact?.safety || 'n/a'}`);
+  console.log(`- continuity: ${analysis.impact?.continuity || 'n/a'}`);
+
+  console.log('\nEscalation triggers:');
+  printList(analysis.escalationTriggers, 'No explicit escalation trigger identified.');
+
+  console.log('\nInformation needed next:');
+  printList(analysis.informationNeeds, 'No additional information requested.');
+
+  console.log('\nCurrent blockers:');
+  printList(analysis.blockers, 'No blocker identified.');
+
+  console.log('\nRecommended next actions:');
+  printList(analysis.nextActions, 'No action generated.');
+
+  console.log('\nNext checkpoint:');
+  console.log(analysis.nextCheckpoint || 'n/a');
+
+  console.log('\nCommand brief:');
+  console.log(analysis.commandBrief || 'n/a');
+
+  console.log(`\nHandoff draft (${role}):`);
+  console.log(handoff);
+}
+
+function printBoard() {
+  printHeader();
+  console.log('Incident command board:\n');
+
+  for (const incident of listIncidents()) {
+    const latest = getLatestAnalysis(incident);
+    const analysis = latest?.analysis;
+    console.log(`${incident.id} | ${incident.title}`);
+    console.log(`  status=${incident.status} | location=${incident.location} | connectivity=${incident.connectivity}`);
+    console.log(`  severity=${analysis?.severity || incident.severity || 'pending'} | confidence=${analysis?.confidence || 'n/a'}`);
+    console.log(`  next checkpoint=${analysis?.nextCheckpoint || 'Run refresh to generate a command update.'}`);
+    console.log(`  blocker=${analysis?.blockers?.[0] || 'none'}`);
+    console.log('');
+  }
+}
+
+async function printIncidentView(incident, role = 'supervisor') {
+  const latestSnapshot = getLatestAnalysis(incident);
+  const result = latestSnapshot
+    ? {
+        provider: latestSnapshot.provider,
+        modelId: latestSnapshot.modelId,
+        region: latestSnapshot.region,
+        analysis: latestSnapshot.analysis
+      }
+    : await analyzeIncident(incident);
+  const analysis = result.analysis;
 
   console.log(`ID: ${incident.id}`);
   console.log(`Title: ${incident.title}`);
@@ -45,41 +121,46 @@ async function printIncidentView(incident, role = 'supervisor') {
   console.log(`Connectivity: ${incident.connectivity}`);
   console.log(`Created: ${incident.createdAt}`);
   console.log(`Updated: ${incident.updatedAt}`);
-  console.log(`AI runtime: ${getAiRuntimeLabel(result)}\n`);
+  console.log(`AI runtime: ${getAiRuntimeLabel(result)}`);
+  console.log(`Stored analysis: ${latestSnapshot ? latestSnapshot.generatedAt : 'none yet — displaying live analysis'}`);
 
   printTimeline(incident);
   printSyncLog(incident);
+  printAnalysis(analysis, role);
+  console.log('\n-----------------------------------\n');
+}
 
-  console.log('\nAI summary:');
-  console.log(analysis.summary);
+async function refreshIncidentAnalysis(incidentId, role = 'supervisor') {
+  const incident = getIncident(incidentId);
 
-  console.log('\nRecommended severity:');
-  console.log(`- ${analysis.severity}`);
-  console.log(`- rationale: ${analysis.severityRationale}`);
-
-  console.log('\nOperational impact:');
-  console.log(`- operations: ${analysis.impact?.operations || 'n/a'}`);
-  console.log(`- safety: ${analysis.impact?.safety || 'n/a'}`);
-  console.log(`- continuity: ${analysis.impact?.continuity || 'n/a'}`);
-
-  console.log('\nRecommended next actions:');
-  for (const action of analysis.nextActions || []) {
-    console.log(`- ${action}`);
+  if (!incident) {
+    throw new Error(`Incident not found: ${incidentId}`);
   }
 
-  console.log('\nCommand brief:');
-  console.log(analysis.commandBrief || 'n/a');
+  const previousSnapshot = getLatestAnalysis(incident);
+  const result = await analyzeIncident(incident);
+  const snapshot = createStoredSnapshot(result);
+  const updatedIncident = saveAnalysis(incidentId, snapshot);
 
-  console.log(`\nHandoff draft (${role}):`);
-  console.log(handoff);
+  printHeader();
+  console.log(`Refreshed command package for ${updatedIncident.id}`);
+  console.log(`AI runtime: ${getAiRuntimeLabel(result)}`);
+  console.log(`Stored at: ${snapshot.generatedAt}`);
+
+  console.log('\nChange summary:');
+  printList(summarizeChanges(previousSnapshot, snapshot));
+
+  printAnalysis(snapshot.analysis, role);
   console.log('\n-----------------------------------\n');
 }
 
 function printUsage() {
   console.log('Usage:');
   console.log('  node src/index.js list');
+  console.log('  node src/index.js board');
   console.log('  node src/index.js view <incident-id> [role]');
   console.log('  node src/index.js analyze <incident-id>');
+  console.log('  node src/index.js refresh <incident-id> [role]');
   console.log('  node src/index.js create <title> <location> <reporter> [connectivity]');
   console.log('  node src/index.js note <incident-id> <type> <text>');
   console.log('  node src/index.js status <incident-id> <status>');
@@ -106,6 +187,11 @@ async function main() {
     for (const incident of listIncidents()) {
       console.log(`${incident.id} | ${incident.title} | status=${incident.status} | updated=${incident.updatedAt}`);
     }
+    return;
+  }
+
+  if (command === 'board') {
+    printBoard();
     return;
   }
 
@@ -140,6 +226,13 @@ async function main() {
     return;
   }
 
+  if (command === 'refresh') {
+    if (!assertArgs(args, 1, 'node src/index.js refresh inc-001 maintenance')) return;
+    const [incidentId, role = 'supervisor'] = args;
+    await refreshIncidentAnalysis(incidentId, role);
+    return;
+  }
+
   if (command === 'create') {
     if (!assertArgs(args, 3, 'node src/index.js create "Pump pressure drop" "West Intake" "Operator S. Kim" intermittent')) return;
     const [title, location, reporter, connectivity] = args;
@@ -166,6 +259,7 @@ async function main() {
 
   if (command === 'demo') {
     printHeader();
+    printBoard();
     for (const incident of listIncidents()) {
       await printIncidentView(incident);
     }

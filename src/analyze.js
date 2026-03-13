@@ -101,16 +101,45 @@ function buildFallbackAnalysis(incident) {
   const triage = classifySeverity(incident.notes);
   const summary = buildFallbackSummary(incident);
   const nextActions = buildFallbackActions(triage.severity);
+  const confidence = triage.severity === 'high' ? 'high' : 'medium';
+  const escalationTriggers = triage.severity === 'high'
+    ? [
+        'Repeated alarms or another automatic shutdown',
+        'Evidence of rising load or abnormal cooling behavior',
+        'Any new safety exposure for onsite personnel'
+      ]
+    : triage.severity === 'medium'
+      ? [
+          'Visible spread of damage or moisture',
+          'Loss of containment or worsening environmental conditions'
+        ]
+      : ['Any sign that impact is spreading beyond the initial report'];
+  const informationNeeds = [
+    'Latest field verification from the asset owner',
+    'Confirmation of whether the condition is stable, improving, or worsening'
+  ];
+  const blockers = incident.connectivity === 'offline-first' || incident.connectivity === 'intermittent'
+    ? ['Unreliable connectivity may delay remote review or attachment upload']
+    : ['No major coordination blocker identified from current notes'];
 
   return {
     provider: 'local-fallback',
-    modelId: 'heuristic-triage-v1',
+    modelId: 'heuristic-triage-v2',
     region: 'local',
     analysis: {
       summary,
       severity: triage.severity,
       severityRationale: triage.rationale,
+      confidence,
+      escalationTriggers,
+      informationNeeds,
+      blockers,
       nextActions,
+      nextCheckpoint: triage.severity === 'high'
+        ? 'Recheck asset status within 15 minutes or immediately after field inspection begins.'
+        : triage.severity === 'medium'
+          ? 'Collect a verification update in the next operating window and confirm whether containment is holding.'
+          : 'Review the incident again at the next routine checkpoint before closure.',
       commandBrief: `Command brief: ${summary} Priority is ${triage.severity}. Immediate focus is keeping the timeline current and the next response owner explicit.`,
       handoff: {
         supervisor: buildFallbackHandoff('supervisor', incident, summary, triage.severity, triage.rationale, nextActions),
@@ -126,6 +155,48 @@ function buildFallbackAnalysis(incident) {
       }
     }
   };
+}
+
+function createStoredSnapshot(result) {
+  return {
+    generatedAt: new Date().toISOString(),
+    provider: result.provider,
+    modelId: result.modelId,
+    region: result.region,
+    analysis: result.analysis
+  };
+}
+
+function summarizeChanges(previousSnapshot, nextSnapshot) {
+  if (!previousSnapshot) {
+    return ['Initial analysis captured.'];
+  }
+
+  const previous = previousSnapshot.analysis || {};
+  const next = nextSnapshot.analysis || {};
+  const changes = [];
+
+  if (previous.severity !== next.severity) {
+    changes.push(`Severity changed from ${previous.severity || 'unknown'} to ${next.severity || 'unknown'}.`);
+  }
+
+  if (previous.confidence !== next.confidence) {
+    changes.push(`Confidence changed from ${previous.confidence || 'unknown'} to ${next.confidence || 'unknown'}.`);
+  }
+
+  if (previous.nextCheckpoint !== next.nextCheckpoint) {
+    changes.push('Recommended next checkpoint changed.');
+  }
+
+  if (previous.summary !== next.summary) {
+    changes.push('Summary updated from the latest timeline.');
+  }
+
+  if (!changes.length) {
+    changes.push('No major analysis shift detected; latest refresh mainly confirms the current picture.');
+  }
+
+  return changes;
 }
 
 async function analyzeIncident(incident) {
@@ -166,6 +237,8 @@ module.exports = {
   getAiRuntimeLabel,
   buildFallbackAnalysis,
   classifySeverity,
+  createStoredSnapshot,
+  summarizeChanges,
   DEFAULT_MODEL_ID,
   DEFAULT_REGION
 };

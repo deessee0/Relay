@@ -29,7 +29,12 @@ function buildPrompt(incident) {
     '  "summary": "string",',
     '  "severity": "low|medium|high",',
     '  "severityRationale": "string",',
+    '  "confidence": "low|medium|high",',
+    '  "escalationTriggers": ["string", "..."],',
+    '  "informationNeeds": ["string", "..."],',
+    '  "blockers": ["string", "..."],',
     '  "nextActions": ["string", "..."],',
+    '  "nextCheckpoint": "string",',
     '  "commandBrief": "string",',
     '  "handoff": {',
     '    "supervisor": "string",',
@@ -46,6 +51,9 @@ function buildPrompt(incident) {
     '- Use only facts grounded in the incident data.',
     '- Keep summary to 2 sentences max.',
     '- Provide 3 to 5 next actions.',
+    '- Provide 1 to 3 escalationTriggers, informationNeeds, and blockers when applicable.',
+    '- Set confidence based on evidence quality, not optimism.',
+    '- Make nextCheckpoint concrete and time-oriented.',
     '- Make commandBrief sound like a shift commander update.',
     '- Tailor each handoff to its audience.',
     '- Mention uncertainty when evidence is incomplete.',
@@ -67,7 +75,7 @@ async function analyzeWithNova(incident) {
       }
     ],
     inferenceConfig: {
-      maxTokens: 900,
+      maxTokens: 1200,
       temperature: 0.2,
       topP: 0.9
     }
