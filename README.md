@@ -38,13 +38,14 @@ The current prototype is a runnable local CLI that simulates the core product lo
 1. create an incident locally
 2. add timeline notes over time
 3. prove Bedrock connectivity with a one-command Nova readiness check when AWS credentials are available
-4. analyze the incident with Amazon Nova via Amazon Bedrock
-5. fall back to local heuristic triage when Nova is unavailable so the demo is still runnable offline
-6. generate a stored command package with summary, severity, confidence, evidence status, commander intent, impact, blockers, missing information, next-step guidance, next checkpoint, command brief, and role-specific handoff
-7. show an incident command board so multiple incidents feel like a real operating surface
-8. generate a command-center portfolio ranking that surfaces cross-incident risk and where leadership attention goes next
-9. run a built-in evaluation harness to show that the triage output is structured, measurable, and benchmarkable across realistic scenarios
-10. show a simulated sync state for offline-first workflows
+4. store that proof locally so the board and command center keep showing the last live Amazon Nova verification during the demo
+5. analyze the incident with Amazon Nova via Amazon Bedrock
+6. fall back to local heuristic triage when Nova is unavailable so the demo is still runnable offline
+7. generate a stored command package with summary, severity, confidence, evidence status, commander intent, impact, blockers, missing information, next-step guidance, next checkpoint, command brief, and role-specific handoff
+8. show an incident command board so multiple incidents feel like a real operating surface
+9. generate a command-center portfolio ranking that surfaces cross-incident risk and where leadership attention goes next
+10. run a built-in evaluation harness to show that the triage output is structured, measurable, and benchmarkable across realistic scenarios
+11. show a simulated sync state for offline-first workflows
 
 Data is persisted to `data/incidents.json`, so the demo behaves more like a product and less like a static mock.
 
@@ -76,6 +77,8 @@ node src/index.js status inc-pump-pressure-drop-3 monitoring
 ## Use Amazon Nova on AWS
 
 Relay defaults to Amazon Nova automatically when the Bedrock runtime is available.
+
+`node src/index.js nova-check` now writes a local proof artifact to `data/nova-proof.json`, and Relay surfaces the latest successful check in the board and command center views so judges can see that live Nova connectivity was verified recently.
 
 Example environment:
 
@@ -124,6 +127,7 @@ In scope:
 - timeline capture
 - Amazon Nova reasoning via Bedrock
 - one-command Nova readiness proof for live demos
+- persisted Nova proof surfaced directly in the board and command center
 - local fallback analysis for resilience and demos
 - severity recommendation
 - confidence and blocker detection

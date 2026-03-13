@@ -8,7 +8,7 @@
     "status": "open",
     "connectivity": "intermittent",
     "createdAt": "2026-03-13T09:12:00Z",
-    "updatedAt": "2026-03-13T17:03:10.443Z",
+    "updatedAt": "2026-03-13T17:51:28.617Z",
     "notes": [
       {
         "at": "2026-03-13T09:12:00Z",
@@ -74,6 +74,51 @@
             "continuity": "Relay preserves local incident context despite unreliable connectivity."
           }
         }
+      },
+      {
+        "generatedAt": "2026-03-13T17:51:28.617Z",
+        "provider": "local-fallback",
+        "modelId": "heuristic-triage-v2",
+        "region": "local",
+        "analysis": {
+          "summary": "Generator overheating at remote site at North Ridge Substation remains open. Connectivity is intermittent; latest field signal: Maintenance lead requested triage summary before dispatch. Evidence is still mixed, so field verification and another checkpoint are needed before overcommitting.",
+          "severity": "high",
+          "severityRationale": "The incident indicates unstable operations or signs of imminent equipment failure, so rapid escalation is justified.",
+          "confidence": "high",
+          "evidenceStatus": "mixed",
+          "commanderIntent": "Stabilize the asset quickly, verify whether the risk is still active, and keep escalation ownership explicit.",
+          "escalationTriggers": [
+            "Repeated alarms or another automatic shutdown",
+            "Evidence of rising load or abnormal cooling behavior",
+            "Any new safety exposure for onsite personnel"
+          ],
+          "informationNeeds": [
+            "Latest field verification from the asset owner",
+            "Confirmation of whether the condition is stable, improving, or worsening"
+          ],
+          "blockers": [
+            "Unreliable connectivity may delay remote review or attachment upload"
+          ],
+          "nextActions": [
+            "Dispatch field support immediately",
+            "Reduce operational load until inspection is completed",
+            "Capture one more timestamped field update to reduce uncertainty",
+            "Send the fresh incident brief to the next responsible team",
+            "Confirm an owner for the next operational checkpoint"
+          ],
+          "nextCheckpoint": "Recheck asset status within 15 minutes or immediately after field inspection begins.",
+          "commandBrief": "Command brief: Generator overheating at remote site at North Ridge Substation remains open. Connectivity is intermittent; latest field signal: Maintenance lead requested triage summary before dispatch. Priority is high. Evidence status is mixed. Immediate focus is stabilize the asset quickly, verify whether the risk is still active, and keep escalation ownership explicit.",
+          "handoff": {
+            "supervisor": "Supervisor handoff\nIncident: Generator overheating at remote site\nLocation: North Ridge Substation\nCurrent status: open\nRecommended severity: high\nWhy: The incident indicates unstable operations or signs of imminent equipment failure, so rapid escalation is justified.\nEvidence status: mixed\nCommander intent: Stabilize the asset quickly, verify whether the risk is still active, and keep escalation ownership explicit.\nSummary: Generator overheating at remote site at North Ridge Substation remains open. Connectivity is intermittent; latest field signal: Maintenance lead requested triage summary before dispatch.\nNext actions:\n- Dispatch field support immediately\n- Reduce operational load until inspection is completed\n- Capture one more timestamped field update to reduce uncertainty\n- Send the fresh incident brief to the next responsible team\n- Confirm an owner for the next operational checkpoint",
+            "field": "Field operator handoff\nIncident: Generator overheating at remote site\nLocation: North Ridge Substation\nCurrent status: open\nRecommended severity: high\nWhy: The incident indicates unstable operations or signs of imminent equipment failure, so rapid escalation is justified.\nEvidence status: mixed\nCommander intent: Stabilize the asset quickly, verify whether the risk is still active, and keep escalation ownership explicit.\nSummary: Generator overheating at remote site at North Ridge Substation remains open. Connectivity is intermittent; latest field signal: Maintenance lead requested triage summary before dispatch.\nNext actions:\n- Dispatch field support immediately\n- Reduce operational load until inspection is completed\n- Capture one more timestamped field update to reduce uncertainty\n- Send the fresh incident brief to the next responsible team\n- Confirm an owner for the next operational checkpoint",
+            "maintenance": "Maintenance handoff\nIncident: Generator overheating at remote site\nLocation: North Ridge Substation\nCurrent status: open\nRecommended severity: high\nWhy: The incident indicates unstable operations or signs of imminent equipment failure, so rapid escalation is justified.\nEvidence status: mixed\nCommander intent: Stabilize the asset quickly, verify whether the risk is still active, and keep escalation ownership explicit.\nSummary: Generator overheating at remote site at North Ridge Substation remains open. Connectivity is intermittent; latest field signal: Maintenance lead requested triage summary before dispatch.\nNext actions:\n- Dispatch field support immediately\n- Reduce operational load until inspection is completed\n- Capture one more timestamped field update to reduce uncertainty\n- Send the fresh incident brief to the next responsible team\n- Confirm an owner for the next operational checkpoint"
+          },
+          "impact": {
+            "operations": "Operational continuity is at risk if the issue repeats or escalates.",
+            "safety": "Potential safety exposure exists if unstable equipment remains in service.",
+            "continuity": "Relay preserves local incident context despite unreliable connectivity."
+          }
+        }
       }
     ]
   },
@@ -86,7 +131,7 @@
     "status": "monitoring",
     "connectivity": "offline-first",
     "createdAt": "2026-03-13T10:05:00Z",
-    "updatedAt": "2026-03-13T17:03:19.963Z",
+    "updatedAt": "2026-03-13T17:51:30.745Z",
     "notes": [
       {
         "at": "2026-03-13T10:05:00Z",
@@ -139,6 +184,50 @@
             "supervisor": "Supervisor handoff\nIncident: Water ingress detected in storage room\nLocation: South Depot B\nCurrent status: monitoring\nRecommended severity: medium\nWhy: The issue may worsen if ignored, but current evidence suggests controlled inspection and monitored mitigation are still appropriate.\nSummary: Water ingress detected in storage room at South Depot B remains monitoring. Connectivity is offline-first; latest field signal: Requested inspection of roof seal and temporary isolation of nearby equipment.\nNext actions:\n- Schedule inspection in the next operational window\n- Isolate nearby risk points if conditions worsen\n- Capture one more timestamped field update to reduce uncertainty\n- Send the fresh incident brief to the next responsible team\n- Confirm an owner for the next operational checkpoint",
             "field": "Field operator handoff\nIncident: Water ingress detected in storage room\nLocation: South Depot B\nCurrent status: monitoring\nRecommended severity: medium\nWhy: The issue may worsen if ignored, but current evidence suggests controlled inspection and monitored mitigation are still appropriate.\nSummary: Water ingress detected in storage room at South Depot B remains monitoring. Connectivity is offline-first; latest field signal: Requested inspection of roof seal and temporary isolation of nearby equipment.\nNext actions:\n- Schedule inspection in the next operational window\n- Isolate nearby risk points if conditions worsen\n- Capture one more timestamped field update to reduce uncertainty\n- Send the fresh incident brief to the next responsible team\n- Confirm an owner for the next operational checkpoint",
             "maintenance": "Maintenance handoff\nIncident: Water ingress detected in storage room\nLocation: South Depot B\nCurrent status: monitoring\nRecommended severity: medium\nWhy: The issue may worsen if ignored, but current evidence suggests controlled inspection and monitored mitigation are still appropriate.\nSummary: Water ingress detected in storage room at South Depot B remains monitoring. Connectivity is offline-first; latest field signal: Requested inspection of roof seal and temporary isolation of nearby equipment.\nNext actions:\n- Schedule inspection in the next operational window\n- Isolate nearby risk points if conditions worsen\n- Capture one more timestamped field update to reduce uncertainty\n- Send the fresh incident brief to the next responsible team\n- Confirm an owner for the next operational checkpoint"
+          },
+          "impact": {
+            "operations": "Operational impact appears manageable but still requires coordination discipline.",
+            "safety": "No immediate safety emergency is confirmed, but conditions should be rechecked.",
+            "continuity": "Relay preserves local incident context despite unreliable connectivity."
+          }
+        }
+      },
+      {
+        "generatedAt": "2026-03-13T17:51:30.745Z",
+        "provider": "local-fallback",
+        "modelId": "heuristic-triage-v2",
+        "region": "local",
+        "analysis": {
+          "summary": "Water ingress detected in storage room at South Depot B remains monitoring. Connectivity is offline-first; latest field signal: Requested inspection of roof seal and temporary isolation of nearby equipment. Evidence is still mixed, so field verification and another checkpoint are needed before overcommitting.",
+          "severity": "medium",
+          "severityRationale": "The issue may worsen if ignored, but current evidence suggests controlled inspection and monitored mitigation are still appropriate.",
+          "confidence": "medium",
+          "evidenceStatus": "mixed",
+          "commanderIntent": "Contain the issue, verify whether impact is spreading, and preserve a clean command timeline.",
+          "escalationTriggers": [
+            "Visible spread of damage or moisture",
+            "Loss of containment or worsening environmental conditions"
+          ],
+          "informationNeeds": [
+            "Latest field verification from the asset owner",
+            "Confirmation of whether the condition is stable, improving, or worsening"
+          ],
+          "blockers": [
+            "Unreliable connectivity may delay remote review or attachment upload"
+          ],
+          "nextActions": [
+            "Schedule inspection in the next operational window",
+            "Isolate nearby risk points if conditions worsen",
+            "Capture one more timestamped field update to reduce uncertainty",
+            "Send the fresh incident brief to the next responsible team",
+            "Confirm an owner for the next operational checkpoint"
+          ],
+          "nextCheckpoint": "Collect a verification update in the next operating window and confirm whether containment is holding.",
+          "commandBrief": "Command brief: Water ingress detected in storage room at South Depot B remains monitoring. Connectivity is offline-first; latest field signal: Requested inspection of roof seal and temporary isolation of nearby equipment. Priority is medium. Evidence status is mixed. Immediate focus is contain the issue, verify whether impact is spreading, and preserve a clean command timeline.",
+          "handoff": {
+            "supervisor": "Supervisor handoff\nIncident: Water ingress detected in storage room\nLocation: South Depot B\nCurrent status: monitoring\nRecommended severity: medium\nWhy: The issue may worsen if ignored, but current evidence suggests controlled inspection and monitored mitigation are still appropriate.\nEvidence status: mixed\nCommander intent: Contain the issue, verify whether impact is spreading, and preserve a clean command timeline.\nSummary: Water ingress detected in storage room at South Depot B remains monitoring. Connectivity is offline-first; latest field signal: Requested inspection of roof seal and temporary isolation of nearby equipment.\nNext actions:\n- Schedule inspection in the next operational window\n- Isolate nearby risk points if conditions worsen\n- Capture one more timestamped field update to reduce uncertainty\n- Send the fresh incident brief to the next responsible team\n- Confirm an owner for the next operational checkpoint",
+            "field": "Field operator handoff\nIncident: Water ingress detected in storage room\nLocation: South Depot B\nCurrent status: monitoring\nRecommended severity: medium\nWhy: The issue may worsen if ignored, but current evidence suggests controlled inspection and monitored mitigation are still appropriate.\nEvidence status: mixed\nCommander intent: Contain the issue, verify whether impact is spreading, and preserve a clean command timeline.\nSummary: Water ingress detected in storage room at South Depot B remains monitoring. Connectivity is offline-first; latest field signal: Requested inspection of roof seal and temporary isolation of nearby equipment.\nNext actions:\n- Schedule inspection in the next operational window\n- Isolate nearby risk points if conditions worsen\n- Capture one more timestamped field update to reduce uncertainty\n- Send the fresh incident brief to the next responsible team\n- Confirm an owner for the next operational checkpoint",
+            "maintenance": "Maintenance handoff\nIncident: Water ingress detected in storage room\nLocation: South Depot B\nCurrent status: monitoring\nRecommended severity: medium\nWhy: The issue may worsen if ignored, but current evidence suggests controlled inspection and monitored mitigation are still appropriate.\nEvidence status: mixed\nCommander intent: Contain the issue, verify whether impact is spreading, and preserve a clean command timeline.\nSummary: Water ingress detected in storage room at South Depot B remains monitoring. Connectivity is offline-first; latest field signal: Requested inspection of roof seal and temporary isolation of nearby equipment.\nNext actions:\n- Schedule inspection in the next operational window\n- Isolate nearby risk points if conditions worsen\n- Capture one more timestamped field update to reduce uncertainty\n- Send the fresh incident brief to the next responsible team\n- Confirm an owner for the next operational checkpoint"
           },
           "impact": {
             "operations": "Operational impact appears manageable but still requires coordination discipline.",

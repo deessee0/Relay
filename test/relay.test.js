@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 
 const { extractJsonBlock } = require('../src/nova');
 const { classifySeverity, buildFallbackAnalysis } = require('../src/analyze');
+const { formatNovaProof } = require('../src/proof');
 
 test('extractJsonBlock pulls JSON out of fenced output', () => {
   const raw = [
@@ -48,4 +49,19 @@ test('fallback analysis includes command-ready fields for offline demo flow', ()
   assert.ok(result.analysis.commanderIntent.length > 20);
   assert.ok(result.analysis.nextActions.length >= 3);
   assert.equal(result.analysis.handoff.maintenance.includes('Maintenance handoff'), true);
+  assert.equal(result.analysis.evidenceStatus, 'mixed');
+  assert.match(result.analysis.commandBrief, /Evidence status is mixed/i);
+});
+
+test('formatNovaProof gives a judge-friendly proof line', () => {
+  const text = formatNovaProof({
+    checkedAt: '2026-03-13T17:40:00Z',
+    modelId: 'us.amazon.nova-lite-v1:0',
+    region: 'us-east-1',
+    validation: { ok: true }
+  });
+
+  assert.match(text, /2026-03-13T17:40:00Z/);
+  assert.match(text, /us\.amazon\.nova-lite-v1:0/);
+  assert.match(text, /schema pass/);
 });

@@ -19,6 +19,7 @@ const { buildSyncLog } = require('./sync');
 const { analyzePortfolio, getPortfolioRuntimeLabel, computeAttentionScore } = require('./command-center');
 const { runEvaluation } = require('./eval');
 const { probeNova } = require('./nova');
+const { readNovaProof, writeNovaProof, formatNovaProof } = require('./proof');
 
 function printHeader() {
   console.log('Relay — local-first incident copilot');
@@ -95,6 +96,8 @@ function printAnalysis(analysis, role = 'supervisor') {
 function printBoard() {
   printHeader();
   console.log('Incident command board:\n');
+  console.log(`Nova proof: ${formatNovaProof(readNovaProof())}`);
+  console.log('');
 
   const incidents = [...listIncidents()].sort((a, b) => computeAttentionScore(b) - computeAttentionScore(a));
 
@@ -197,6 +200,7 @@ async function printCommandCenter() {
   console.log('Relay Command Center');
   console.log('--------------------');
   console.log(`AI runtime: ${getPortfolioRuntimeLabel(result)}`);
+  console.log(`Nova proof: ${formatNovaProof(readNovaProof())}`);
   console.log(`Active incidents: ${incidents.length}`);
   printPortfolioAnalysis(result);
   console.log('\n-----------------------------------\n');
@@ -224,7 +228,7 @@ async function printNovaProbe() {
   console.log('---------------------------');
 
   try {
-    const result = await probeNova();
+    const result = writeNovaProof(await probeNova());
 
     console.log(`Checked at: ${result.checkedAt}`);
     console.log(`AI runtime: Amazon Nova via Bedrock (${result.modelId}, ${result.region})`);
