@@ -1,0 +1,65 @@
+const incidents = [
+  {
+    id: 'inc-001',
+    title: 'Generator overheating at remote site',
+    location: 'North Ridge Substation',
+    reporter: 'Field Operator A. Kovacs',
+    severity: 'high',
+    status: 'open',
+    connectivity: 'intermittent',
+    createdAt: '2026-03-13T09:12:00Z',
+    updatedAt: '2026-03-13T09:31:00Z',
+    notes: [
+      {
+        at: '2026-03-13T09:12:00Z',
+        type: 'observation',
+        text: 'Temperature alarms triggered twice in the last 20 minutes.'
+      },
+      {
+        at: '2026-03-13T09:18:00Z',
+        type: 'observation',
+        text: 'Generator shut down for 90 seconds, then auto-recovered.'
+      },
+      {
+        at: '2026-03-13T09:24:00Z',
+        type: 'risk',
+        text: 'Site cooling fan sounds abnormal and load remains elevated.'
+      },
+      {
+        at: '2026-03-13T09:31:00Z',
+        type: 'coordination',
+        text: 'Maintenance lead requested triage summary before dispatch.'
+      }
+    ]
+  },
+  {
+    id: 'inc-002',
+    title: 'Water ingress detected in storage room',
+    location: 'South Depot B',
+    reporter: 'Technician N. Di Salvia',
+    severity: 'medium',
+    status: 'monitoring',
+    connectivity: 'offline-first',
+    createdAt: '2026-03-13T10:05:00Z',
+    updatedAt: '2026-03-13T10:19:00Z',
+    notes: [
+      {
+        at: '2026-03-13T10:05:00Z',
+        type: 'observation',
+        text: 'Moisture sensor triggered near electrical cabinet wall.'
+      },
+      {
+        at: '2026-03-13T10:11:00Z',
+        type: 'observation',
+        text: 'No active leak visible, but floor edge is wet over ~1.5 meters.'
+      },
+      {
+        at: '2026-03-13T10:19:00Z',
+        type: 'coordination',
+        text: 'Requested inspection of roof seal and temporary isolation of nearby equipment.'
+      }
+    ]
+  }
+];
+
+module.exports = { incidents };
