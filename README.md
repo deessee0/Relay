@@ -37,13 +37,14 @@ The current prototype is a runnable local CLI that simulates the core product lo
 
 1. create an incident locally
 2. add timeline notes over time
-3. analyze the incident with Amazon Nova via Amazon Bedrock when AWS credentials are available
-4. fall back to local heuristic triage when Nova is unavailable so the demo is still runnable offline
-5. generate a stored command package with summary, severity, confidence, evidence status, commander intent, impact, blockers, missing information, next-step guidance, next checkpoint, command brief, and role-specific handoff
-6. show an incident command board so multiple incidents feel like a real operating surface
-7. generate a command-center portfolio ranking that surfaces cross-incident risk and where leadership attention goes next
-8. run a built-in evaluation harness to show that the triage output is structured, measurable, and benchmarkable across realistic scenarios
-9. show a simulated sync state for offline-first workflows
+3. prove Bedrock connectivity with a one-command Nova readiness check when AWS credentials are available
+4. analyze the incident with Amazon Nova via Amazon Bedrock
+5. fall back to local heuristic triage when Nova is unavailable so the demo is still runnable offline
+6. generate a stored command package with summary, severity, confidence, evidence status, commander intent, impact, blockers, missing information, next-step guidance, next checkpoint, command brief, and role-specific handoff
+7. show an incident command board so multiple incidents feel like a real operating surface
+8. generate a command-center portfolio ranking that surfaces cross-incident risk and where leadership attention goes next
+9. run a built-in evaluation harness to show that the triage output is structured, measurable, and benchmarkable across realistic scenarios
+10. show a simulated sync state for offline-first workflows
 
 Data is persisted to `data/incidents.json`, so the demo behaves more like a product and less like a static mock.
 
@@ -57,6 +58,7 @@ npm run demo
 Useful commands:
 
 ```bash
+node src/index.js nova-check
 node src/index.js list
 node src/index.js board
 node src/index.js view inc-001
@@ -65,6 +67,7 @@ node src/index.js refresh inc-001
 node src/index.js command-center
 node src/index.js analyze inc-001
 node src/index.js eval
+npm test
 node src/index.js create "Pump pressure drop" "West Intake" "Operator S. Kim" intermittent
 node src/index.js note inc-pump-pressure-drop-3 observation "Pressure remains unstable after reset."
 node src/index.js status inc-pump-pressure-drop-3 monitoring
@@ -82,6 +85,7 @@ export AWS_ACCESS_KEY_ID=...
 export AWS_SECRET_ACCESS_KEY=...
 export RELAY_AI_PROVIDER=amazon-nova
 export RELAY_NOVA_MODEL_ID=us.amazon.nova-lite-v1:0
+node src/index.js nova-check
 npm run demo
 ```
 
@@ -119,6 +123,7 @@ In scope:
 - incident model
 - timeline capture
 - Amazon Nova reasoning via Bedrock
+- one-command Nova readiness proof for live demos
 - local fallback analysis for resilience and demos
 - severity recommendation
 - confidence and blocker detection
@@ -131,6 +136,7 @@ In scope:
 - incident command board
 - simulated sync state
 - persistent local demo data
+- minimal automated smoke tests for the core workflow
 
 Out of scope for now:
 

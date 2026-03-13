@@ -11,9 +11,64 @@ function safeJsonParse(text) {
   }
 }
 
+function extractBalancedJsonObject(text) {
+  const start = text.indexOf('{');
+  if (start === -1) {
+    return null;
+  }
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let index = start; index < text.length; index += 1) {
+    const char = text[index];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (char === '\\') {
+      escaped = true;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (inString) {
+      continue;
+    }
+
+    if (char === '{') {
+      depth += 1;
+      continue;
+    }
+
+    if (char === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        return text.slice(start, index + 1);
+      }
+    }
+  }
+
+  return null;
+}
+
 function extractJsonBlock(text) {
-  const match = text.match(/\{[\s\S]*\}$/);
-  return match ? match[0] : text;
+  const fencedMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fencedMatch?.[1]) {
+    const fencedJson = extractBalancedJsonObject(fencedMatch[1].trim());
+    if (fencedJson) {
+      return fencedJson;
+    }
+  }
+
+  return extractBalancedJsonObject(text) || text;
 }
 
 async function getBedrockClient() {
@@ -111,8 +166,53 @@ async function analyzeWithNova(input) {
   };
 }
 
+async function probeNova() {
+  const result = await analyzeWithNova({
+    kind: 'nova-probe',
+    prompt: [
+      'Return STRICT JSON only.',
+      '{',
+      '  "summary": "Nova connectivity verified for Relay.",',
+      '  "severity": "low",',
+      '  "severityRationale": "This is a connectivity probe, not a live incident.",',
+      '  "confidence": "high",',
+      '  "evidenceStatus": "confirmed",',
+      '  "commanderIntent": "Confirm that Bedrock and Amazon Nova are reachable for the live demo.",',
+      '  "escalationTriggers": ["No escalation needed"],',
+      '  "informationNeeds": ["None"],',
+      '  "blockers": ["None"],',
+      '  "nextActions": ["Proceed with the live incident demo", "Call out the Amazon Nova runtime line", "Run Relay evaluation if time allows"],',
+      '  "nextCheckpoint": "Ready now.",',
+      '  "commandBrief": "Relay probe succeeded. Amazon Nova is reachable and ready for the demo.",',
+      '  "handoff": {',
+      '    "supervisor": "Nova probe succeeded. Bedrock is reachable.",',
+      '    "field": "Nova probe succeeded. No field action needed.",',
+      '    "maintenance": "Nova probe succeeded. No maintenance action needed."',
+      '  },',
+      '  "impact": {',
+      '    "operations": "Demo readiness confirmed.",',
+      '    "safety": "No safety impact.",',
+      '    "continuity": "Live Amazon Nova path is available."',
+      '  }',
+      '}',
+      'Do not add commentary outside the JSON object.'
+    ].join('\n')
+  });
+
+  return {
+    checkedAt: new Date().toISOString(),
+    provider: result.provider,
+    modelId: result.modelId,
+    region: result.region,
+    validation: result.validation,
+    analysis: result.analysis
+  };
+}
+
 module.exports = {
   DEFAULT_MODEL_ID,
   DEFAULT_REGION,
-  analyzeWithNova
+  analyzeWithNova,
+  extractJsonBlock,
+  probeNova
 };

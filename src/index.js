@@ -18,6 +18,7 @@ const {
 const { buildSyncLog } = require('./sync');
 const { analyzePortfolio, getPortfolioRuntimeLabel, computeAttentionScore } = require('./command-center');
 const { runEvaluation } = require('./eval');
+const { probeNova } = require('./nova');
 
 function printHeader() {
   console.log('Relay — local-first incident copilot');
@@ -217,6 +218,41 @@ function printEvaluation(report) {
   }
 }
 
+async function printNovaProbe() {
+  printHeader();
+  console.log('Amazon Nova readiness check');
+  console.log('---------------------------');
+
+  try {
+    const result = await probeNova();
+
+    console.log(`Checked at: ${result.checkedAt}`);
+    console.log(`AI runtime: Amazon Nova via Bedrock (${result.modelId}, ${result.region})`);
+    console.log(`Schema validation: ${result.validation?.ok ? 'pass' : 'needs review'}`);
+    if (result.validation?.problems?.length) {
+      console.log('Validation notes:');
+      printList(result.validation.problems);
+    }
+
+    console.log('\nProbe summary:');
+    console.log(result.analysis.summary);
+
+    console.log('\nCommand brief:');
+    console.log(result.analysis.commandBrief);
+    console.log('\n-----------------------------------\n');
+    return;
+  } catch (error) {
+    console.log('Status: not ready for live Amazon Nova demo');
+    console.log(`Model: ${DEFAULT_MODEL_ID}`);
+    console.log(`Region: ${DEFAULT_REGION}`);
+    console.log(`Cause: ${error.message}`);
+    console.log('\nNext step: configure Bedrock credentials, then re-run `node src/index.js nova-check`.');
+    console.log('Relay itself still remains usable in local fallback mode for offline demonstration.');
+    console.log('\n-----------------------------------\n');
+    process.exitCode = 1;
+  }
+}
+
 function printUsage() {
   console.log('Usage:');
   console.log('  node src/index.js list');
@@ -225,6 +261,7 @@ function printUsage() {
   console.log('  node src/index.js view <incident-id> [role]');
   console.log('  node src/index.js analyze <incident-id>');
   console.log('  node src/index.js refresh <incident-id> [role]');
+  console.log('  node src/index.js nova-check');
   console.log('  node src/index.js create <title> <location> <reporter> [connectivity]');
   console.log('  node src/index.js note <incident-id> <type> <text>');
   console.log('  node src/index.js status <incident-id> <status>');
@@ -300,6 +337,11 @@ async function main() {
     if (!assertArgs(args, 1, 'node src/index.js refresh inc-001 maintenance')) return;
     const [incidentId, role = 'supervisor'] = args;
     await refreshIncidentAnalysis(incidentId, role);
+    return;
+  }
+
+  if (command === 'nova-check') {
+    await printNovaProbe();
     return;
   }
 
