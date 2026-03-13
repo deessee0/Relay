@@ -6,11 +6,11 @@ const {
   updateStatus
 } = require('./incidents');
 const {
-  classifySeverity,
-  buildSummary,
-  suggestNextActions,
-  buildHandoff
-} = require('./triage');
+  analyzeIncident,
+  getAiRuntimeLabel,
+  DEFAULT_MODEL_ID,
+  DEFAULT_REGION
+} = require('./analyze');
 const { buildSyncLog } = require('./sync');
 
 function printHeader() {
@@ -32,18 +32,10 @@ function printSyncLog(incident) {
   }
 }
 
-function printIncidentView(incident, role = 'supervisor') {
-  const triage = classifySeverity(incident.notes);
-  const summary = buildSummary(incident);
-  const actions = suggestNextActions(incident, triage.severity);
-  const handoff = buildHandoff(
-    incident,
-    summary,
-    triage.severity,
-    triage.rationale,
-    actions,
-    role
-  );
+async function printIncidentView(incident, role = 'supervisor') {
+  const result = await analyzeIncident(incident);
+  const analysis = result.analysis;
+  const handoff = analysis.handoff?.[role] || analysis.handoff?.supervisor || 'No handoff available.';
 
   console.log(`ID: ${incident.id}`);
   console.log(`Title: ${incident.title}`);
@@ -52,22 +44,31 @@ function printIncidentView(incident, role = 'supervisor') {
   console.log(`Status: ${incident.status}`);
   console.log(`Connectivity: ${incident.connectivity}`);
   console.log(`Created: ${incident.createdAt}`);
-  console.log(`Updated: ${incident.updatedAt}\n`);
+  console.log(`Updated: ${incident.updatedAt}`);
+  console.log(`AI runtime: ${getAiRuntimeLabel(result)}\n`);
 
   printTimeline(incident);
   printSyncLog(incident);
 
   console.log('\nAI summary:');
-  console.log(summary);
+  console.log(analysis.summary);
 
   console.log('\nRecommended severity:');
-  console.log(`- ${triage.severity}`);
-  console.log(`- rationale: ${triage.rationale}`);
+  console.log(`- ${analysis.severity}`);
+  console.log(`- rationale: ${analysis.severityRationale}`);
+
+  console.log('\nOperational impact:');
+  console.log(`- operations: ${analysis.impact?.operations || 'n/a'}`);
+  console.log(`- safety: ${analysis.impact?.safety || 'n/a'}`);
+  console.log(`- continuity: ${analysis.impact?.continuity || 'n/a'}`);
 
   console.log('\nRecommended next actions:');
-  for (const action of actions) {
+  for (const action of analysis.nextActions || []) {
     console.log(`- ${action}`);
   }
+
+  console.log('\nCommand brief:');
+  console.log(analysis.commandBrief || 'n/a');
 
   console.log(`\nHandoff draft (${role}):`);
   console.log(handoff);
@@ -78,10 +79,13 @@ function printUsage() {
   console.log('Usage:');
   console.log('  node src/index.js list');
   console.log('  node src/index.js view <incident-id> [role]');
+  console.log('  node src/index.js analyze <incident-id>');
   console.log('  node src/index.js create <title> <location> <reporter> [connectivity]');
   console.log('  node src/index.js note <incident-id> <type> <text>');
   console.log('  node src/index.js status <incident-id> <status>');
   console.log('  node src/index.js demo');
+  console.log('');
+  console.log(`Amazon Nova defaults: model=${DEFAULT_MODEL_ID} region=${DEFAULT_REGION}`);
 }
 
 function assertArgs(args, expected, example) {
@@ -94,15 +98,14 @@ function assertArgs(args, expected, example) {
   return true;
 }
 
-function main() {
+async function main() {
   const [command = 'demo', ...args] = process.argv.slice(2);
 
   if (command === 'list') {
     printHeader();
-    listIncidents().forEach((incident) => {
-      const triage = classifySeverity(incident.notes);
-      console.log(`${incident.id} | ${incident.title} | status=${incident.status} | severity=${triage.severity} | updated=${incident.updatedAt}`);
-    });
+    for (const incident of listIncidents()) {
+      console.log(`${incident.id} | ${incident.title} | status=${incident.status} | updated=${incident.updatedAt}`);
+    }
     return;
   }
 
@@ -118,7 +121,22 @@ function main() {
     }
 
     printHeader();
-    printIncidentView(incident, role);
+    await printIncidentView(incident, role);
+    return;
+  }
+
+  if (command === 'analyze') {
+    if (!assertArgs(args, 1, 'node src/index.js analyze inc-001')) return;
+    const incident = getIncident(args[0]);
+
+    if (!incident) {
+      console.error(`Incident not found: ${args[0]}`);
+      process.exitCode = 1;
+      return;
+    }
+
+    const result = await analyzeIncident(incident);
+    console.log(JSON.stringify(result, null, 2));
     return;
   }
 
@@ -148,7 +166,9 @@ function main() {
 
   if (command === 'demo') {
     printHeader();
-    listIncidents().forEach((incident) => printIncidentView(incident));
+    for (const incident of listIncidents()) {
+      await printIncidentView(incident);
+    }
     return;
   }
 
@@ -156,4 +176,7 @@ function main() {
   process.exitCode = 1;
 }
 
-main();
+main().catch((error) => {
+  console.error(error.message || error);
+  process.exitCode = 1;
+});

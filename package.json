@@ -7,6 +7,10 @@
     "dev": "node src/index.js demo",
     "start": "node src/index.js demo",
     "demo": "node src/index.js demo",
-    "list": "node src/index.js list"
+    "list": "node src/index.js list",
+    "analyze": "node src/index.js analyze inc-001"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.855.0"
   }
 }
